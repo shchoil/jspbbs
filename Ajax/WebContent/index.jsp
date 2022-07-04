@@ -9,17 +9,18 @@
 	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
 	<script src="js/bootstrap.js"></script>
 	<script type="text/javascript">
-		var request = new XMLHttpRequest();
+		var serchRequest = new XMLHttpRequest();
+		var registerRequest = new XMLHttpRequest();
 		function searchFunction() {
-			request.open("Post", "./UserSearchServlet?userName=" + encodeURIComponent(document.getElementById("userName").value), true);
-			request.onreadystatechange = searchProcess;
-			request.send(null);
+			serchRequest.open("Post", "./UserSearchServlet?userName=" + encodeURIComponent(document.getElementById("userName").value), true);
+			serchRequest.onreadystatechange = searchProcess;
+			serchRequest.send(null);
 		}
 		function searchProcess() {
 			var table = document.getElementById("ajaxTable");
 			table.innerHTML = "";
-			if(request.readyState == 4 && request.status == 200) {
-				var object = eval('(' + request.responseText + ')');
+			if(serchRequest.readyState == 4 && serchRequest.status == 200) {
+				var object = eval('(' + serchRequest.responseText + ')');
 				var result = object.result;
 				for(var i = 0; i < result.length; i++) {
 					var row = table.insertRow(0);
@@ -27,6 +28,33 @@
 						var cell = row.insertCell(j);
 						cell.innerHTML = result[i][j].value;
 					}
+				}
+			}
+		}
+		function registerFunction() {
+			registerRequest.open("Post", "./UserRegisterServlet?userName=" + encodeURIComponent(document.getElementById("registerName").value) +
+										"&userAge=" + encodeURIComponent(document.getElementById("registerAge").value) +
+										"&userGender=" + encodeURIComponent($('input[name=registerGender]:checked').val()) +
+										"&userEmail=" + encodeURIComponent(document.getElementById("registerEmail").value), true);
+			registerRequest.onreadystatechange = registerProcess;
+			registerRequest.send(null);
+		}
+		function registerProcess() {
+			if(registerRequest.readyState == 4 && registerRequest.status == 200) {
+				var result = registerRequest.responseText;
+				if(result != 1) {
+					alert('등록에 실패했습니다.');
+				}
+				else {
+					var userName = document.getElementById("userName");
+					var registerName = document.getElementById("registerName");
+					var registerAge = document.getElementById("registerAge");
+					var registerEmail = document.getElementById("registerEmail");
+					userName.value = "";
+					registerName.value = "";
+					registerAge.value = "";
+					registerEmail.value = "";
+					searchFunction();
 				}
 			}
 		}
@@ -56,6 +84,47 @@
 				</tr>
 			</thead>
 			<tbody id="ajaxTable">
+			</tbody>
+		</table>
+	</div>
+	<div class="container">
+		<table class="table" style="text-align: center; border: 1px solid #dddddd">
+			<thead>
+				<tr>
+					<th colspan="2" style="background-color: #fafafa; text-align:center;">회원 등록 양식</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td style="background-color: #fafafa; text-align:center;"><h5>이름</h5></td>
+					<td><input class="form-control" type="text" id="registerName" size="20"></td>
+				</tr>
+				<tr>
+					<td style="background-color: #fafafa; text-align:center;"><h5>나이</h5></td>
+					<td><input class="form-control" type="text" id="registerAge" size="20"></td>
+				</tr>
+				<tr>
+					<td style="background-color: #fafafa; text-align:center;"><h5>성별</h5></td>
+					<td>
+						<div class="form-group" style="text-align: center; margin: 0 auto;">
+							<div class="btn-group" data-toggle="buttons">
+								<label class="btn btn-primary active">
+									<input type="radio" name="registerGender" autocomplete="off" value="남자" checked>남자
+								</label>
+								<label class="btn btn-primary">
+									<input type="radio" name="registerGender" autocomplete="off" value="여자">여자
+								</label>
+							</div>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td style="background-color: #fafafa; text-align:center;"><h5>이메일</h5></td>
+					<td><input class="form-control" type="text" id="registerEmail" size="20"></td>
+				</tr>
+				<tr>
+					<td colspan="2"><button class="btn btn-primary pull-right" onclick="registerFunction();" type="button">등록</button></td>
+				</tr>
 			</tbody>
 		</table>
 	</div>
